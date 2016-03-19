@@ -23,7 +23,6 @@
     "finalhandler": "^0.4.1",
     "htmlparser": "^1.7.7",
     "needle": "^1.0.0",
-    "request": "^2.69.0",
-    "router": "^1.1.4",
+    "router": "^1.1.4"
   }
 }
