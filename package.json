@@ -1,0 +1,29 @@
+{
+  "name": "price-for-asin",
+  "version": "0.0.1",
+  "description": "Look up a price given an ASIN",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bmordue/price-for-asin.git"
+  },
+  "author": "Ben Mordue",
+  "license": "CC0",
+  "bugs": {
+    "url": "https://github.com/bmordue/price-for-asin/issues"
+  },
+  "homepage": "https://github.com/bmordue/price-for-asin",
+  "devDependencies": {
+    "mocha": "^2.4.5"
+  },
+  "dependencies": {
+    "finalhandler": "^0.4.1",
+    "htmlparser": "^1.7.7",
+    "needle": "^1.0.0",
+    "request": "^2.69.0",
+    "router": "^1.1.4",
+  }
+}
