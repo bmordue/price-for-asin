@@ -1,5 +1,6 @@
 var needle = require('needle');
 var htmlparser = require('htmlparser');
+var util = require('util');
 
 function constructUrl(asin) {
 	return "http://www.amazon.co.uk/gp/aw/s/ref=is_box_?k=" + asin; // mobile site
@@ -35,11 +36,14 @@ function parsePage(html, callback) {
 }
 
 function fetchPriceForAsin(asin, callback){
-	needle.get(constructUrl(asin), function(err, response) {
+	var options = { follow_max: 5 };
+	needle.get(constructUrl(asin), options, function(err, response) {
 		if (err) {
 			return callback(err);
 		}
 		if (response.statusCode != 200) {
+			console.log(util.format('ERROR: status code %s', response.statusCode));
+			console.log(util.format('DEBUG: %j', response.body));
 			return callback(new Error("Expected status code 200; got " + response.statusCode));
 		}
 		parsePage(response.body, callback);		
