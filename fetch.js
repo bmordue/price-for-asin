@@ -10,6 +10,7 @@ function constructUrl(asin) {
 function dumpHtml(html, error, callback) {
 	var filename = (new Date()).toISOString() + '_dump.html';
 	fs.writeFile(filename, html, function(err) {
+		console.log('Write ' + filename);
 		if (err) {
 			console.log('Error writing file ' + filename + '\n' + util.inspect(err));
 		}
