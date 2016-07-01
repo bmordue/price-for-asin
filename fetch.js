@@ -1,6 +1,7 @@
 var fs = require('fs');
-var needle = require('needle');
 var htmlparser = require('htmlparser');
+var needle = require('needle');
+var path = require('path');
 var util = require('util');
 
 function constructUrl(asin) {
@@ -8,7 +9,7 @@ function constructUrl(asin) {
 }
 
 function dumpHtml(html, error, callback) {
-	var filename = (new Date()).toISOString() + '_dump.html';
+	var filename = path.join('out', (new Date()).toISOString() + '_dump.html');
 	fs.writeFile(filename, html, function(err) {
 		console.log('Write ' + filename);
 		if (err) {
