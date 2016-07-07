@@ -37,7 +37,12 @@ function parsePage(html, callback) {
 		if (price[0] != '£') {
 			return dumpHtml(html, new Error("Expected currency symbol to be £; got " + price[0]), callback);
 		}
-		price = price.slice(1);
+		price = parseFloat(price.slice(1));
+		if (isNaN(price)) {
+			var errMsg = "Failed to convert price string to float; result is NaN";
+			console.log(errMsg);
+			callback(new Error(errMsg));
+		}
 		var result = {
 			price: price,
 			currency: "GBP"
