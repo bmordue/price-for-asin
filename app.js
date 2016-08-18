@@ -19,7 +19,7 @@ function handleBadRequest(errorMsg, req, res) {
 }
 
 function handleNotFound(req, res) {
-	handleClientError(404, "Resource not found", req, res);
+	handleClientError(404, "Resource not found: " + req.url, req, res);
 }
 
 var router = Router();
