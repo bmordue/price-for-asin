@@ -9,6 +9,9 @@ try {
 
             stage 'Test'
             sh 'npm test'
+
+            stage 'Coverage'
+            sh 'npm run-script coverage'
         }
     }
 } catch (exc) {
