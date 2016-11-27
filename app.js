@@ -1,6 +1,7 @@
 var fetch        = require('./fetch');
 var finalhandler = require('finalhandler');
 var http         = require('http');
+var log          = require('./log');
 var Router       = require('router');
 var url          = require('url');
 var util         = require('util');
@@ -8,7 +9,7 @@ var util         = require('util');
 const PORT = 3000;
 
 function handleClientError(code, msg, req, res) {
-	console.log(util.format("%s %s %s - BAD REQUEST: %s", code, req.method, req.url, msg));
+	log.info({status_code: code, method: req.method, url: req.url}, util.format("BAD REQUEST: %s", msg));
 	res.statusCode = code;
 	res.setHeader('Content-Type', 'application/json; charset=utf-8');
 	res.end(JSON.stringify({error: msg}));
@@ -40,7 +41,7 @@ router.get('/price', function (req, res) {
 	}
 	fetch.fetchPriceForAsin(asin, function(err, result) {
 		if (err) {
-			console.log(err);
+			log.error(err, "fetchPriceForAsin returned err");
 			return handleNotFound(req, res);
 		}
 		res.statusCode = 200;
@@ -51,7 +52,7 @@ router.get('/price', function (req, res) {
 		};
 		var responseBody = JSON.stringify(responseJson, null, 4) + '\n';
 		res.end(responseBody);
-		console.log(util.format("%s %s %s", res.statusCode, req.method, req.url));
+		log.info({status_code: res.statusCode, method: req.method, url: req.url}, "Successful request");
 	});
 
 });
@@ -61,4 +62,4 @@ var server = http.createServer(function(req, res) {
 });
  
 server.listen(PORT);
-console.log("Server price-to-asin listening on port " + PORT);
+log.info({}, "Server price-to-asin listening on port " + PORT);

@@ -1,5 +1,6 @@
 var fs = require('fs');
 var htmlparser = require('htmlparser');
+var log = require('./log');
 var needle = require('needle');
 var path = require('path');
 var util = require('util');
@@ -11,9 +12,9 @@ function constructUrl(asin) {
 function dumpHtml(html, error, callback) {
 	var filename = path.join('out', (new Date()).toISOString() + '_dump.html');
 	fs.writeFile(filename, html, function(err) {
-		console.log('Write ' + filename);
+		log.info({filename: filename}, 'Write HTML dump file');
 		if (err) {
-			console.log('Error writing file ' + filename + '\n' + util.inspect(err));
+			log.error({filename: filename, err: err}, 'Error writing HTML dump file');
 		}
 		callback(error);
 	});
@@ -40,7 +41,7 @@ function parsePage(html, callback) {
 		price = parseFloat(price.slice(1));
 		if (isNaN(price)) {
 			var errMsg = "Failed to convert price string to float; result is NaN";
-			console.log(errMsg);
+			log.error({price: price}, errMsg);
 			callback(new Error(errMsg));
 		}
 		var result = {
@@ -60,8 +61,8 @@ function fetchPriceForAsin(asin, callback){
 			return callback(err);
 		}
 		if (response.statusCode != 200) {
-			console.log(util.format('ERROR: status code %s', response.statusCode));
-			console.log(util.format('DEBUG: %j', response.body));
+			log.error({status_code: response.statusCode }, util.format("ERROR: status code %s", response.statusCode));
+			log.debug({body: response.body, headers: response.headers}, "Response for unsuccessful request");
 			return callback(new Error("Expected status code 200; got " + response.statusCode));
 		}
 		parsePage(response.body, callback);		
