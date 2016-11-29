@@ -2,7 +2,7 @@ try {
     node {
         wrap([$class: 'TimestamperBuildWrapper']) {
             stage 'Checkout source'
-            scm checkout
+            checkout scm
 
             stage 'Install dependencies'
             sh 'npm install'
@@ -24,4 +24,6 @@ try {
               to: recipient,
          replyTo: recipient,
             from: 'noreply@ci.blackbox.lan'
+
+    throw exc
 }
