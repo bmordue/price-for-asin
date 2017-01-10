@@ -3,13 +3,17 @@ var htmlparser = require('htmlparser');
 var log = require('./log');
 var needle = require('needle');
 var path = require('path');
+var StatsD = require('node-statsd');
 var util = require('util');
+
+var statsd = new StatsD({prefix: 'price-for-asin.fetch'});
 
 function constructUrl(asin) {
 	return "http://www.amazon.co.uk/gp/aw/s/ref=is_box_?k=" + asin; // mobile site
 }
 
 function dumpHtml(html, error, callback) {
+	statsd.increment('html_dumped');
 	var filename = path.join('out', (new Date()).toISOString() + '_dump.html');
 	fs.writeFile(filename, html, function(err) {
 		log.info({filename: filename}, 'Write HTML dump file');
@@ -21,6 +25,7 @@ function dumpHtml(html, error, callback) {
 }
 
 function parsePage(html, callback) {
+	statsd.increment('pages_parsed');
 	var handler = new htmlparser.DefaultHandler(function (error, dom) {
 		if (error) {
 			return dumpHtml(html, error, callback);
@@ -55,6 +60,7 @@ function parsePage(html, callback) {
 }
 
 function fetchPriceForAsin(asin, callback){
+	statsd.increment('requests_made');
 	var options = { follow_max: 5 };
 	needle.get(constructUrl(asin), options, function(err, response) {
 		if (err) {

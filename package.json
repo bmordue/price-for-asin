@@ -26,6 +26,7 @@
     "finalhandler": "^0.4.1",
     "htmlparser": "^1.7.7",
     "needle": "^1.0.0",
+    "node-statsd": "^0.1.1",
     "router": "^1.1.4"
   }
 }

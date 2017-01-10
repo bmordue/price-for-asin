@@ -3,12 +3,16 @@ var finalhandler = require('finalhandler');
 var http         = require('http');
 var log          = require('./log');
 var Router       = require('router');
+var StatsD       = require('node-statsd');
 var url          = require('url');
 var util         = require('util');
+
+var statsd = new StatsD({prefix: 'price-for-asin.api'});
 
 const PORT = 3000;
 
 function handleClientError(code, msg, req, res) {
+	statsd.increment('error_responses');
 	log.info({status_code: code, method: req.method, url: req.url}, util.format("BAD REQUEST: %s", msg));
 	res.statusCode = code;
 	res.setHeader('Content-Type', 'application/json; charset=utf-8');
@@ -25,6 +29,7 @@ function handleNotFound(req, res) {
 
 var router = Router();
 router.get('/price', function (req, res) {
+	statsd.increment('requests');
 
 	if (req.method != "GET") {
 		var errorMsg = "Method not accepted: " + req.method;
