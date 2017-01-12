@@ -6,7 +6,7 @@ var path = require('path');
 var StatsD = require('node-statsd');
 var util = require('util');
 
-var statsd = new StatsD({prefix: 'price-for-asin.fetch'});
+var statsd = new StatsD({prefix: 'price-for-asin.fetch.'});
 
 function constructUrl(asin) {
 	return "http://www.amazon.co.uk/gp/aw/s/ref=is_box_?k=" + asin; // mobile site

@@ -7,7 +7,7 @@ var StatsD       = require('node-statsd');
 var url          = require('url');
 var util         = require('util');
 
-var statsd = new StatsD({prefix: 'price-for-asin.api'});
+var statsd = new StatsD({prefix: 'price-for-asin.api.'});
 
 const PORT = 3000;
 
