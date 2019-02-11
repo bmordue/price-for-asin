@@ -61,6 +61,7 @@ function parsePage(html, callback) {
 
 function fetchPriceForAsin(asin, callback){
 	statsd.increment('requests_made');
+	log.info({asin: asin}, "fetchPriceForAsin");
 	var options = { follow_max: 5 };
 	needle.get(constructUrl(asin), options, function(err, response) {
 		if (err) {
@@ -71,7 +72,7 @@ function fetchPriceForAsin(asin, callback){
 			log.debug({body: response.body, headers: response.headers}, "Response for unsuccessful request");
 			return callback(new Error("Expected status code 200; got " + response.statusCode));
 		}
-		parsePage(response.body, callback);		
+		parsePage(response.body, callback);
 	});
 }
 

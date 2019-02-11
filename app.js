@@ -38,12 +38,13 @@ router.get('/price', function (req, res) {
 	var asin;
 	try {
 		asin = url.parse(req.url, true).query.asin;
+		log.info({asin: asin}, "ASIN in query string: ");
 	} catch (e) {
 		return handleBadRequest("Bad query string", req, res);
 	}
 	if (!asin) {
 		return handleBadRequest("No ASIN in query string", req, res);
-	}
+	} else {
 	fetch.fetchPriceForAsin(asin, function(err, result) {
 		if (err) {
 			log.error(err, "fetchPriceForAsin returned err");
@@ -59,6 +60,7 @@ router.get('/price', function (req, res) {
 		res.end(responseBody);
 		log.info({status_code: res.statusCode, method: req.method, url: req.url}, "Successful request");
 	});
+	}
 
 });
  
