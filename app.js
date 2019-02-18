@@ -9,7 +9,7 @@ var util         = require('util');
 
 var statsd = new StatsD({prefix: 'price-for-asin.api.'});
 
-const PORT = 3000;
+var PORT = process.env.PRICE_FOR_ASIN_PORT || 3000;
 
 function handleClientError(code, msg, req, res) {
 	statsd.increment('error_responses');
