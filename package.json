@@ -4,7 +4,7 @@
   "description": "Look up a price given an ASIN",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js >> /var/log/price-for-asin.log 2>&1 &",
+    "start": "node app.js",
     "test": "mocha",
     "coverage": "istanbul cover _mocha -- --recursive"
   },
