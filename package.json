@@ -5,8 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node app.js",
-    "test": "mocha",
-    "coverage": "istanbul cover _mocha -- --recursive"
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
@@ -19,8 +18,8 @@
   },
   "homepage": "https://github.com/bmordue/price-for-asin",
   "devDependencies": {
-    "istanbul": "^0.4.5",
-    "mocha": "^2.4.5"
+    "mocha": "^2.4.5",
+    "nyc": "^13.3.0"
   },
   "dependencies": {
     "finalhandler": "^0.4.1",
