@@ -37,3 +37,8 @@ node_modules
 
 # output
 out/
+.nyc_output
+.coverage/
+.scannerwork/
+
+.env
