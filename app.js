@@ -7,7 +7,10 @@ var StatsD       = require('node-statsd');
 var url          = require('url');
 var util         = require('util');
 
-var statsd = new StatsD({prefix: 'price-for-asin.api.'});
+var statsd = new StatsD({
+			prefix: 'price-for-asin.api.',
+			host: process.env.STATSD_HOST || 'localhost'
+		});
 
 var PORT = process.env.PRICE_FOR_ASIN_PORT || 3000;
 
