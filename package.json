@@ -22,7 +22,7 @@
     "nyc": "^13.3.0"
   },
   "dependencies": {
-    "finalhandler": "^0.4.1",
+    "finalhandler": "^1.0.6",
     "htmlparser": "^1.7.7",
     "needle": "^1.0.0",
     "node-statsd": "^0.1.1",
