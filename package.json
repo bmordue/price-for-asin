@@ -18,8 +18,8 @@
   },
   "homepage": "https://github.com/bmordue/price-for-asin",
   "devDependencies": {
-    "mocha": "^2.4.5",
-    "nyc": "^13.3.0"
+    "mocha": "^10.0.0",
+    "nyc": "^15.1.0"
   },
   "dependencies": {
     "finalhandler": "^1.2.0",
