@@ -7,15 +7,15 @@ Price for ASIN is a Node.js web service that looks up Amazon UK product prices b
 ## Working Effectively
 
 ### Bootstrap and Dependencies
-- Install dependencies: `npm install` -- takes 40-55 seconds. NEVER CANCEL. Set timeout to 3+ minutes.
+- Install dependencies: `npm install` -- takes 25-30 seconds. NEVER CANCEL. Set timeout to 3+ minutes.
   - Updates package-lock.json from old npm version format (on first run)
   - Shows deprecation warnings for rimraf, inflight, and glob packages (expected)
   - May show security vulnerabilities with `npm audit` (expected for older dependencies)
-  - Creates node_modules directory with 230+ packages
+  - Creates node_modules directory with 167+ packages
 
 ### Building and Testing  
 - Build: No explicit build step required - this is a runtime Node.js application
-- Run tests: `npm test` -- takes 20-25 seconds but **WILL FAIL** in sandboxed environments
+- Run tests: `npm test` -- takes 20-31ms but **WILL FAIL** in sandboxed environments
   - Tests fail with `ENOTFOUND www.amazon.co.uk` due to network restrictions
   - This is expected behavior in isolated environments - not a code problem
   - Tests validate the `fetchPriceForAsin` function with real Amazon requests
@@ -122,7 +122,8 @@ After making changes, **ALWAYS** test these scenarios:
 - This is expected behavior, not a bug
 
 ### Node.js Version Compatibility
-- **Current**: Developed for Node.js 8 but works with modern versions (tested on Node.js 20)
+- **Current**: Developed for Node.js 8 but works with modern versions (tested on Node.js 20+)
+- **Recommended**: Node.js 16+ for best compatibility with current npm packages
 - **Docker**: build.sh script fails due to outdated base image
 - **Dependencies**: Some npm packages show deprecation warnings (normal)
 
@@ -143,7 +144,8 @@ After making changes, **ALWAYS** test these scenarios:
 ### Setup Commands (REQUIRED EVERY TIME)
 ```bash
 cd /home/runner/work/price-for-asin/price-for-asin
-npm install  # 40-55 seconds, creates node_modules/
+node -v && npm -v           # Verify Node.js 16+ and npm versions
+npm install                 # 25-30 seconds, creates node_modules/
 ```
 
 ### Development Commands  
@@ -152,18 +154,22 @@ npm start                    # Starts server on port 3000
 node app.js                  # Alternative server start
 npm test                     # Runs tests (fails in sandbox - expected)
 PRICE_FOR_ASIN_PORT=3001 node app.js  # Custom port example
+AMZN_RECS_LOG_LEVEL=DEBUG node app.js # Enable debug logging
 ```
 
 ### Validation Commands (COPY-PASTE READY)
 ```bash
 # Test missing ASIN (should return 400):
 curl -i "http://localhost:3000/price"
+# Expected output: HTTP/1.1 400 Bad Request with {"error":"No ASIN in query string"}
 
 # Test invalid endpoint (should return 404 HTML):  
 curl -i "http://localhost:3000/invalid"
+# Expected output: HTTP/1.1 404 Not Found with HTML "Cannot GET /invalid"
 
 # Test valid ASIN (returns 404 in sandbox due to network):
 curl -i "http://localhost:3000/price?asin=B014V4DXMW"
+# Expected output: HTTP/1.1 404 Not Found with {"error":"Resource not found: /price?asin=B014V4DXMW"}
 ```
 
 ### Coverage Analysis
