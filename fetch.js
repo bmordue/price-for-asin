@@ -11,6 +11,12 @@ var statsd = new StatsD({
 			host: process.env.STATSD_HOST || 'localhost'
 		});
 
+// Rate limiting: ensure ~1 request/second to upstream
+var requestQueue = [];
+var lastRequestTime = 0;
+var isProcessing = false;
+var RATE_LIMIT_INTERVAL = 1000; // 1 second in milliseconds
+
 function constructUrl(asin) {
 	return "http://www.amazon.co.uk/gp/aw/s/ref=is_box_?k=" + asin; // mobile site
 }
@@ -62,21 +68,68 @@ function parsePage(html, callback) {
 	parser.parseComplete(html);
 }
 
-function fetchPriceForAsin(asin, callback){
+function processQueue() {
+	if (requestQueue.length === 0 || isProcessing) {
+		return;
+	}
+	
+	var now = Date.now();
+	var timeSinceLastRequest = now - lastRequestTime;
+	
+	if (timeSinceLastRequest >= RATE_LIMIT_INTERVAL) {
+		// Can make request immediately
+		isProcessing = true;
+		var request = requestQueue.shift();
+		lastRequestTime = now;
+		makeActualRequest(request.asin, request.callback);
+	} else {
+		// Need to wait
+		var delay = RATE_LIMIT_INTERVAL - timeSinceLastRequest;
+		setTimeout(function() {
+			processQueue();
+		}, delay);
+	}
+}
+
+function makeActualRequest(asin, callback) {
 	statsd.increment('requests_made');
-	log.info({asin: asin}, "fetchPriceForAsin");
+	log.info({asin: asin}, "makeActualRequest to Amazon");
 	var options = { follow_max: 5 };
+	
+	// Wrap the original callback to ensure proper cleanup
+	var wrappedCallback = function(err, result) {
+		// Set isProcessing to false AFTER the callback is invoked
+		isProcessing = false;
+		// Process next request in queue after this one completes
+		setImmediate(processQueue);
+		// Call the original callback
+		callback(err, result);
+	};
+	
 	needle.get(constructUrl(asin), options, function(err, response) {
 		if (err) {
-			return callback(err);
+			return wrappedCallback(err);
 		}
 		if (response.statusCode != 200) {
 			log.error({status_code: response.statusCode }, util.format("ERROR: status code %s", response.statusCode));
 			log.debug({body: response.body, headers: response.headers}, "Response for unsuccessful request");
-			return callback(new Error("Expected status code 200; got " + response.statusCode));
+			return wrappedCallback(new Error("Expected status code 200; got " + response.statusCode));
 		}
-		parsePage(response.body, callback);
+		parsePage(response.body, wrappedCallback);
 	});
+}
+
+function fetchPriceForAsin(asin, callback){
+	log.info({asin: asin}, "fetchPriceForAsin");
+	
+	// Add request to queue
+	requestQueue.push({
+		asin: asin,
+		callback: callback
+	});
+	
+	// Process queue
+	processQueue();
 }
 
 module.exports = {
