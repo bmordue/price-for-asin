@@ -107,6 +107,10 @@ function makeActualRequest(asin, callback) {
 	};
 	
 	needle.get(constructUrl(asin), options, function(err, response) {
+		isProcessing = false;
+		// Process next request in queue after this one completes
+		setImmediate(processQueue);
+		
 		if (err) {
 			return wrappedCallback(err);
 		}
