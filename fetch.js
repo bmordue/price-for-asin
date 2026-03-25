@@ -95,22 +95,15 @@ function makeActualRequest(asin, callback) {
 	statsd.increment('requests_made');
 	log.info({asin: asin}, "makeActualRequest to Amazon");
 	var options = { follow_max: 5 };
-	
-	// Wrap the original callback to ensure proper cleanup
+
+	// Wrap the original callback to release the processing lock and drain the queue
 	var wrappedCallback = function(err, result) {
-		// Set isProcessing to false AFTER the callback is invoked
 		isProcessing = false;
-		// Process next request in queue after this one completes
 		setImmediate(processQueue);
-		// Call the original callback
 		callback(err, result);
 	};
-	
+
 	needle.get(constructUrl(asin), options, function(err, response) {
-		isProcessing = false;
-		// Process next request in queue after this one completes
-		setImmediate(processQueue);
-		
 		if (err) {
 			return wrappedCallback(err);
 		}
