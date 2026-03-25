@@ -4,8 +4,8 @@ var http         = require('http');
 var log          = require('./log');
 var Router       = require('router');
 var StatsD       = require('node-statsd');
-var url          = require('url');
 var util         = require('util');
+const { isValidAsin } = require('./lib/validation');
 
 var statsd = new StatsD({
 			prefix: 'price-for-asin.api.',
@@ -19,6 +19,7 @@ function handleClientError(code, msg, req, res) {
 	log.info({status_code: code, method: req.method, url: req.url}, util.format("BAD REQUEST: %s", msg));
 	res.statusCode = code;
 	res.setHeader('Content-Type', 'application/json; charset=utf-8');
+	res.setHeader('X-Content-Type-Options', 'nosniff');
 	res.end(JSON.stringify({error: msg}));
 }
 
@@ -34,20 +35,20 @@ var router = Router();
 router.get('/price', function (req, res) {
 	statsd.increment('requests');
 
-	if (req.method != "GET") {
-		var errorMsg = "Method not accepted: " + req.method;
-		return handleBadRequest(errorMsg, req, res);
-	}
-	var asin;
+	let asin;
 	try {
-		asin = url.parse(req.url, true).query.asin;
+		const parsedUrl = new URL(req.url, 'http://localhost');
+		asin = parsedUrl.searchParams.get('asin');
 		log.info({asin: asin}, "ASIN in query string: ");
 	} catch (e) {
 		return handleBadRequest("Bad query string", req, res);
 	}
 	if (!asin) {
 		return handleBadRequest("No ASIN in query string", req, res);
-	} else {
+	}
+	if (!isValidAsin(asin)) {
+		return handleBadRequest("Invalid ASIN format", req, res);
+	}
 	fetch.fetchPriceForAsin(asin, function(err, result) {
 		if (err) {
 			log.error(err, "fetchPriceForAsin returned err");
@@ -55,6 +56,7 @@ router.get('/price', function (req, res) {
 		}
 		res.statusCode = 200;
 		res.setHeader('Content-Type', 'application/json; charset=utf-8');
+		res.setHeader('X-Content-Type-Options', 'nosniff');
 		var responseJson = {
 			price: result.price,
 			currency: result.currency
@@ -63,7 +65,6 @@ router.get('/price', function (req, res) {
 		res.end(responseBody);
 		log.info({status_code: res.statusCode, method: req.method, url: req.url}, "Successful request");
 	});
-	}
 
 });
  
